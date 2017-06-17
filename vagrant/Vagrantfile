@@ -1,0 +1,36 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.hostname = "vagrant64"
+
+  config.vm.network "private_network", ip: "192.168.56.111"
+
+  config.ssh.forward_agent = true
+
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "WordPress - local"
+  end
+  
+  config.vm.synced_folder "../wordpress/", "/var/www/html/wordpress",
+    owner: "www-data", group: "www-data"
+
+  config.vm.synced_folder "config/", "/home/vagrant/config",
+    owner: "vagrant", group: "vagrant"
+
+  config.vm.synced_folder "mysql/", "/home/vagrant/mysql",
+    owner: "vagrant", group: "vagrant"
+
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "4096"]
+    vb.customize ["modifyvm", :id, "--cpus", "2"]
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "100"]
+  end
+
+  config.vm.provision "shell", path: "shellprovider.sh"
+end
